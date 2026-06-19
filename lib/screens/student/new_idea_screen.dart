@@ -8,6 +8,8 @@ import '../../models/idea_model.dart';
 import '../../widgets/app_buttons.dart';
 import '../../utils/constants.dart';
 import '../../utils/image_utils.dart';
+import '../../theme/colors.dart';
+
 
 class NewIdeaScreen extends StatefulWidget {
   const NewIdeaScreen({Key? key}) : super(key: key);
@@ -181,33 +183,46 @@ class _NewIdeaScreenState extends State<NewIdeaScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = isDark ? Colors.white : Colors.black;
+
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Share Campus Idea'),
+        title: const Text('SHARE CAMPUS IDEA'),
       ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Got an idea to make campus life better?',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                'Got an idea to make campus life better? 💡',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? Colors.white : Colors.black,
+                  height: 1.2,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Submit improvement suggestions, facility requests, or community initiatives here.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                'Submit suggestions, facility requests, or community initiatives here.',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? Colors.white70 : Colors.black54,
+                ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
               TextFormField(
                 controller: _titleController,
+                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                 decoration: const InputDecoration(
                   labelText: 'Idea Title',
                   hintText: 'e.g., Solar charging stations in gardens',
-                  border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -216,12 +231,12 @@ class _NewIdeaScreenState extends State<NewIdeaScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               DropdownButtonFormField<String>(
                 value: _selectedCategory,
+                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                 decoration: const InputDecoration(
                   labelText: 'Category',
-                  border: OutlineInputBorder(),
                 ),
                 items: AppConstants.ideaCategories.map((category) {
                   return DropdownMenuItem<String>(
@@ -237,14 +252,14 @@ class _NewIdeaScreenState extends State<NewIdeaScreen> {
                   }
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 5,
+                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                 decoration: const InputDecoration(
                   labelText: 'Describe your idea',
                   hintText: 'Explain the benefits and details of this idea...',
-                  border: OutlineInputBorder(),
                   alignLabelWithHint: true,
                 ),
                 validator: (value) {
@@ -254,22 +269,45 @@ class _NewIdeaScreenState extends State<NewIdeaScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
-              SwitchListTile(
-                title: const Text('Post Anonymously'),
-                subtitle: const Text('Hide your name and roll number from the feed'),
-                value: _isAnonymous,
-                activeColor: Theme.of(context).primaryColor,
-                contentPadding: EdgeInsets.zero,
-                onChanged: (value) {
-                  setState(() {
-                    _isAnonymous = value;
-                  });
-                },
+              const SizedBox(height: 20),
+              
+              // Bordered Switch Container
+              Container(
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E1E24) : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: borderColor, width: 2.0),
+                ),
+                child: SwitchListTile(
+                  title: const Text(
+                    'Post Anonymously',
+                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15),
+                  ),
+                  subtitle: const Text(
+                    'Hide your name and roll number from the feed',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  value: _isAnonymous,
+                  activeColor: isDark ? AppColors.secondaryBlue : AppColors.primaryOrange,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  onChanged: (value) {
+                    setState(() {
+                      _isAnonymous = value;
+                    });
+                  },
+                ),
               ),
-              const SizedBox(height: 16),
-              const Text('Add Visual Reference (Optional)', style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
+              const SizedBox(height: 24),
+              Text(
+                'ADD VISUAL REFERENCE (OPTIONAL)',
+                style: TextStyle(
+                  fontSize: 13, 
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.0,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+              const SizedBox(height: 10),
               if (_imageFile != null)
                 Stack(
                   children: [
@@ -277,7 +315,8 @@ class _NewIdeaScreenState extends State<NewIdeaScreen> {
                       height: 200,
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: borderColor, width: 2.5),
                         image: DecorationImage(
                           image: FileImage(_imageFile!),
                           fit: BoxFit.cover,
@@ -285,12 +324,18 @@ class _NewIdeaScreenState extends State<NewIdeaScreen> {
                       ),
                     ),
                     Positioned(
-                      top: 8,
-                      right: 8,
-                      child: CircleAvatar(
-                        backgroundColor: Colors.red.withOpacity(0.8),
+                      top: 12,
+                      right: 12,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: borderColor, width: 2.0),
+                        ),
                         child: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.white),
+                          icon: const Icon(Icons.delete, color: Colors.white, size: 20),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                           onPressed: () {
                             setState(() {
                               _imageFile = null;
@@ -302,13 +347,40 @@ class _NewIdeaScreenState extends State<NewIdeaScreen> {
                   ],
                 )
               else
-                OutlinedButton.icon(
-                  onPressed: _showImageSourceActionSheet,
-                  icon: const Icon(Icons.add_a_photo),
-                  label: const Text('Upload Image'),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                GestureDetector(
+                  onTap: _showImageSourceActionSheet,
+                  child: Container(
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: borderColor, width: 2.5),
+                      boxShadow: isDark
+                          ? []
+                          : const [
+                              BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(3, 3),
+                                blurRadius: 0,
+                              ),
+                            ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.add_a_photo, color: isDark ? Colors.white : Colors.black, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          'UPLOAD REFERENCE PHOTO',
+                          style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 12,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               const SizedBox(height: 32),
@@ -324,3 +396,4 @@ class _NewIdeaScreenState extends State<NewIdeaScreen> {
     );
   }
 }
+

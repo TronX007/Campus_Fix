@@ -6,6 +6,7 @@ import '../../utils/enums.dart';
 import '../auth/login_screen.dart';
 import '../student/student_dashboard.dart';
 import '../admin/admin_dashboard.dart';
+import '../../theme/colors.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -59,32 +60,73 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
-      body: Center(
-        child: FadeTransition(
-          opacity: _animation,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.support_agent, size: 100, color: Colors.white),
-              const SizedBox(height: 24),
-              Text(
-                AppConstants.appName,
-                style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                  color: Colors.white,
-                  fontSize: 32,
-                  letterSpacing: 2,
-                ),
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            child: ScaleTransition(
+              scale: _animation,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Custom Skater-Style Illustration Card
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 32),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E1E24) : Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: isDark ? Colors.white : Colors.black, width: 2.5),
+                      boxShadow: isDark
+                          ? []
+                          : const [
+                              BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(6, 6),
+                                blurRadius: 0,
+                              ),
+                            ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(21.5),
+                      child: Image.asset(
+                        'assets/images/splash_illustration.png',
+                        height: 260,
+                        width: 260,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    AppConstants.appName,
+                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                      color: isDark ? Colors.white : Colors.black,
+                      fontSize: 36,
+                      letterSpacing: 2,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Campus Complaint & Innovation Hub',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: isDark ? Colors.white70 : Colors.black87,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 48),
+                  CircularProgressIndicator(
+                    color: isDark ? Colors.white : Colors.black,
+                    strokeWidth: 3.5,
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              const Text(
-                'Smart Complaint Resolution',
-                style: TextStyle(color: Colors.white70, fontSize: 16),
-              ),
-              const SizedBox(height: 48),
-              const CircularProgressIndicator(color: Colors.white),
-            ],
+            ),
           ),
         ),
       ),

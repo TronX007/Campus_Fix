@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/app_buttons.dart';
+import '../../theme/colors.dart';
 import '../student/student_dashboard.dart';
+
 import '../admin/admin_dashboard.dart';
 import '../../utils/enums.dart';
 
@@ -78,44 +80,70 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Register')),
+      backgroundColor: AppColors.backgroundLight,
+      appBar: AppBar(title: const Text('CREATE ACCOUNT')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              'Join AU Fix 🚀',
+              style: TextStyle(
+                fontSize: 24, 
+                fontWeight: FontWeight.w900, 
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Sign up to report and track campus issues',
+              style: TextStyle(
+                fontSize: 14, 
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white70 : Colors.black54,
+              ),
+            ),
+            const SizedBox(height: 32),
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Full Name', border: OutlineInputBorder()),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              decoration: const InputDecoration(labelText: 'Full Name'),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             TextField(
               controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              decoration: const InputDecoration(labelText: 'Email Address'),
               keyboardType: TextInputType.emailAddress,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             TextField(
               controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder()),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              decoration: const InputDecoration(labelText: 'Password'),
               obscureText: true,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             TextField(
               controller: _rollNumberController,
-              decoration: const InputDecoration(labelText: 'Roll Number', border: OutlineInputBorder()),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              decoration: const InputDecoration(labelText: 'Roll Number'),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             DropdownButtonFormField<String>(
               value: _selectedDepartment,
-              decoration: const InputDecoration(labelText: 'Department', border: OutlineInputBorder()),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              decoration: const InputDecoration(labelText: 'Department'),
               items: _departments.map((dep) => DropdownMenuItem(value: dep, child: Text(dep))).toList(),
               onChanged: (val) {
                 if (val != null) setState(() => _selectedDepartment = val);
               },
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 36),
             PrimaryButton(
               text: 'Register',
               onPressed: _register,
@@ -127,3 +155,4 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 }
+

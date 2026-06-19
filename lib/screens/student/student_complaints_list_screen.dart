@@ -25,9 +25,15 @@ class StudentComplaintsListScreen extends StatelessWidget {
             .toList()
         : complaintProvider.complaints;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: Text(title),
+        title: Text(
+          title.toUpperCase(),
+          style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.0, fontSize: 18),
+        ),
       ),
       body: filteredComplaints.isEmpty
           ? _buildEmptyState(context)
@@ -36,54 +42,145 @@ class StudentComplaintsListScreen extends StatelessWidget {
               itemCount: filteredComplaints.length,
               itemBuilder: (context, index) {
                 final c = filteredComplaints[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                final Color catColor = AppColors.getCategoryColor(c.category);
+                final Color statusColor = c.status == ComplaintStatus.resolved
+                    ? AppColors.statusResolved
+                    : c.status == ComplaintStatus.rejected
+                        ? AppColors.statusRejected
+                        : c.status == ComplaintStatus.inProgress
+                            ? AppColors.statusInProgress
+                            : AppColors.statusPending;
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF1E1E24) : Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: isDark ? Colors.white : Colors.black, width: 2.5),
+                    boxShadow: isDark
+                        ? []
+                        : const [
+                            BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(4, 4),
+                              blurRadius: 0,
+                            ),
+                          ],
                   ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    title: Text(
-                      c.title,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 6.0),
-                      child: Row(
-                        children: [
-                          Icon(Icons.category_outlined, size: 14, color: Colors.grey[600]),
-                          const SizedBox(width: 4),
-                          Text(c.category, style: TextStyle(color: Colors.grey[700])),
-                        ],
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(17),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => TrackingScreen(complaint: c)),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            children: [
+                              // Left icon
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: isDark ? Colors.white10 : catColor,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: isDark ? Colors.white : Colors.black, width: 2.0),
+                                ),
+                                child: Icon(
+                                  c.status == ComplaintStatus.resolved ? Icons.check : Icons.error_outline,
+                                  color: isDark ? Colors.white : Colors.black,
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+
+                              // Middle text content
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      c.title,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 16,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: isDark ? Colors.white12 : catColor.withOpacity(0.4),
+                                            borderRadius: BorderRadius.circular(6),
+                                            border: Border.all(color: isDark ? Colors.white54 : Colors.black, width: 1.0),
+                                          ),
+                                          child: Text(
+                                            c.category,
+                                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+
+                              // Right side status pill & action arrow icon
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: statusColor,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: isDark ? Colors.white : Colors.black, width: 1.5),
+                                    ),
+                                    child: Text(
+                                      c.status.displayName.toUpperCase(),
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Container(
+                                    width: 24,
+                                    height: 24,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: isDark ? Colors.white54 : Colors.black38, width: 1.5),
+                                    ),
+                                    child: const Icon(
+                                      Icons.arrow_forward,
+                                      size: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                    trailing: Chip(
-                      label: Text(
-                        c.status.displayName.toUpperCase(),
-                        style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                      backgroundColor: c.status == ComplaintStatus.resolved
-                          ? AppColors.statusResolved
-                          : c.status == ComplaintStatus.rejected
-                              ? AppColors.statusRejected
-                              : c.status == ComplaintStatus.inProgress
-                                  ? AppColors.statusInProgress
-                                  : AppColors.statusPending,
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => TrackingScreen(complaint: c)),
-                      );
-                    },
                   ),
                 );
               },
             ),
     );
+
   }
 
   Widget _buildEmptyState(BuildContext context) {

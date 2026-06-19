@@ -7,6 +7,7 @@ import '../../widgets/complaint_image_widget.dart';
 import '../../widgets/full_screen_image_viewer.dart';
 import '../../theme/colors.dart';
 import '../../utils/constants.dart';
+import '../../widgets/custom_cards.dart';
 import 'new_idea_screen.dart';
 
 class InnovationBoardScreen extends StatefulWidget {
@@ -59,15 +60,17 @@ class _InnovationBoardScreenState extends State<InnovationBoardScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
     final ideaProvider = Provider.of<IdeaProvider>(context);
     final currentUserId = authProvider.user?.uid ?? '';
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final filteredIdeas = _getFilteredAndSortedIdeas(ideaProvider.ideas);
 
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       body: Column(
         children: [
           // Filter Chips and Sort Dropdown Header
           _buildFiltersHeader(context),
-          const Divider(height: 1),
+          Container(height: 2.5, color: isDark ? Colors.white : Colors.black),
 
           // Main Feed Section
           Expanded(
@@ -80,10 +83,21 @@ class _InnovationBoardScreenState extends State<InnovationBoardScreen> {
                   : filteredIdeas.isEmpty
                       ? _buildEmptyState(context)
                       : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                          itemCount: filteredIdeas.length,
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+                          itemCount: filteredIdeas.length + 1,
                           itemBuilder: (context, index) {
-                            final idea = filteredIdeas[index];
+                            if (index == 0) {
+                              return const Padding(
+                                padding: EdgeInsets.only(bottom: 16.0),
+                                child: AnimatedIllustrationCard(
+                                  imagePath: 'assets/images/innovation_illustration.png',
+                                  title: 'Campus Innovation',
+                                  subtitle: 'Propose ideas to make campus life better. Upvote popular suggestions to get them funded!',
+                                  cardColor: AppColors.pastelOrange,
+                                ),
+                              );
+                            }
+                            final idea = filteredIdeas[index - 1];
                             return _buildIdeaCard(context, idea, currentUserId, ideaProvider);
                           },
                         ),
@@ -91,33 +105,55 @@ class _InnovationBoardScreenState extends State<InnovationBoardScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const NewIdeaScreen()),
-          );
-        },
-        child: const Icon(Icons.lightbulb),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.secondaryBlue : AppColors.primaryOrange,
+          shape: BoxShape.circle,
+          border: Border.all(color: isDark ? Colors.white : Colors.black, width: 2.5),
+          boxShadow: isDark
+              ? []
+              : const [
+                  BoxShadow(
+                    color: Colors.black,
+                    offset: Offset(3, 3),
+                    blurRadius: 0,
+                  ),
+                ],
+        ),
+        child: FloatingActionButton(
+          elevation: 0,
+          highlightElevation: 0,
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const NewIdeaScreen()),
+            );
+          },
+          child: const Icon(Icons.add, size: 28),
+        ),
       ),
     );
   }
 
   Widget _buildFiltersHeader(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
-      color: Theme.of(context).cardColor,
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      color: AppColors.backgroundLight,
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Category horizontal scroll
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
               children: [
                 ChoiceChip(
-                  label: const Text('All'),
+                  label: const Text('ALL'),
                   selected: _selectedCategory == 'All',
                   onSelected: (selected) {
                     if (selected) {
@@ -126,13 +162,24 @@ class _InnovationBoardScreenState extends State<InnovationBoardScreen> {
                       });
                     }
                   },
+                  backgroundColor: Colors.white,
+                  selectedColor: AppColors.pastelMint,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: BorderSide(
+                      color: isDark ? Colors.white : Colors.black,
+                      width: 2.0,
+                    ),
+                  ),
                 ),
                 ...AppConstants.ideaCategories.map((category) {
+                  final Color catColor = AppColors.getCategoryColor(category);
+                  final isSelected = _selectedCategory == category;
                   return Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
+                    padding: const EdgeInsets.only(left: 10.0),
                     child: ChoiceChip(
-                      label: Text(category),
-                      selected: _selectedCategory == category,
+                      label: Text(category.toUpperCase()),
+                      selected: isSelected,
                       onSelected: (selected) {
                         if (selected) {
                           setState(() {
@@ -140,13 +187,23 @@ class _InnovationBoardScreenState extends State<InnovationBoardScreen> {
                           });
                         }
                       },
+                      backgroundColor: Colors.white,
+                      selectedColor: catColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(
+                          color: isDark ? Colors.white : Colors.black,
+                          width: 2.0,
+                        ),
+                      ),
                     ),
                   );
                 }).toList(),
               ],
             ),
+
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           // Sort Dropdown
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -154,27 +211,46 @@ class _InnovationBoardScreenState extends State<InnovationBoardScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Ideas Feed',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  'IDEAS FEED',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.2,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
                 ),
-                DropdownButton<String>(
-                  value: _selectedSort,
-                  underline: const SizedBox(),
-                  icon: const Icon(Icons.sort),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-                  items: <String>['Newest', 'Most Upvoted'].map((String val) {
-                    return DropdownMenuItem<String>(
-                      value: val,
-                      child: Text(val),
-                    );
-                  }).toList(),
-                  onChanged: (val) {
-                    if (val != null) {
-                      setState(() {
-                        _selectedSort = val;
-                      });
-                    }
-                  },
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: isDark ? Colors.white : Colors.black, width: 2.0),
+                  ),
+                  height: 38,
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _selectedSort,
+                      icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
+                      style: const TextStyle(
+                        color: Colors.black, 
+                        fontWeight: FontWeight.w900,
+                        fontSize: 12,
+                      ),
+                      items: <String>['Newest', 'Most Upvoted'].map((String val) {
+                        return DropdownMenuItem<String>(
+                          value: val,
+                          child: Text(val.toUpperCase()),
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        if (val != null) {
+                          setState(() {
+                            _selectedSort = val;
+                          });
+                        }
+                      },
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -190,160 +266,209 @@ class _InnovationBoardScreenState extends State<InnovationBoardScreen> {
     String currentUserId,
     IdeaProvider provider,
   ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final hasUpvoted = idea.upvotes.contains(currentUserId);
+    final Color catColor = AppColors.getCategoryColor(idea.category);
+    final Color borderColor = isDark ? Colors.white : Colors.black;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12.0),
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20.0),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E24) : Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: borderColor, width: 2.5),
+        boxShadow: isDark
+            ? []
+            : const [
+                BoxShadow(
+                  color: Colors.black,
+                  offset: Offset(4, 4),
+                  blurRadius: 0,
+                ),
+              ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(21.5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // User Header
-            Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: idea.isAnonymous ? Colors.grey[300] : AppColors.primaryBlue.withOpacity(0.1),
-                  child: Icon(
-                    idea.isAnonymous ? Icons.person_outline : Icons.person,
-                    color: idea.isAnonymous ? Colors.grey[600] : AppColors.primaryBlue,
+            // Top Category ribbon
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white10 : catColor,
+                border: Border(bottom: BorderSide(color: borderColor, width: 2.0)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    idea.category.toUpperCase(),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.0,
+                      color: Colors.black,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        idea.isAnonymous ? 'Anonymous Student' : idea.postedByName,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  if (idea.postedByUid == currentUserId)
+                    GestureDetector(
+                      onTap: () {
+                        _showDeleteConfirmationDialog(context, idea, provider);
+                      },
+                      child: const Row(
+                        children: [
+                          Icon(Icons.delete_outline, color: Colors.red, size: 16),
+                          SizedBox(width: 4),
+                          Text(
+                            'DELETE',
+                            style: TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        _getRelativeTime(idea.timestamp),
-                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                    ),
+                ],
+              ),
+            ),
+            
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // User Details Header
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundColor: isDark ? Colors.white12 : AppColors.pastelRose,
+                        child: Icon(
+                          idea.isAnonymous ? Icons.lock_outline : Icons.person,
+                          color: isDark ? Colors.white : Colors.black,
+                          size: 18,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              idea.isAnonymous ? 'Anonymous Student' : idea.postedByName,
+                              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              _getRelativeTime(idea.timestamp),
+                              style: TextStyle(
+                                color: isDark ? Colors.white70 : Colors.black54,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                ),
-                // Category Chip
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.secondaryBlue.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    idea.category,
-                    style: const TextStyle(
-                      color: AppColors.secondaryBlue,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                if (idea.postedByUid == currentUserId) ...[
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
-                    onPressed: () {
-                      _showDeleteConfirmationDialog(context, idea, provider);
-                    },
-                    constraints: const BoxConstraints(),
-                    padding: EdgeInsets.zero,
-                  ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-            // Idea Title & Description
-            Text(
-              idea.title,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              idea.description,
-              style: const TextStyle(fontSize: 14, height: 1.4),
-            ),
-            const SizedBox(height: 12),
-
-            // Image attachment if any
-            if (idea.imageBase64 != null && idea.imageBase64!.isNotEmpty)
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => FullScreenImageViewer(imageUrl: idea.imageBase64!),
-                    ),
-                  );
-                },
-                child: Container(
-                  height: 200,
-                  width: double.infinity,
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey[200]!),
+                  // Idea Title & Description
+                  Text(
+                    idea.title,
+                    style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: ComplaintImageWidget(
-                      imageUrl: idea.imageBase64!,
-                      fit: BoxFit.cover,
-                    ),
+                  const SizedBox(height: 8),
+                  Text(
+                    idea.description,
+                    style: const TextStyle(fontSize: 14, height: 1.4, fontWeight: FontWeight.w500),
                   ),
-                ),
-              ),
+                  const SizedBox(height: 16),
 
-            // Card Action Buttons
-            const Divider(height: 1),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                // Upvote Button
-                InkWell(
-                  onTap: () async {
-                    if (currentUserId.isNotEmpty) {
-                      await provider.toggleUpvote(idea.id, currentUserId);
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: hasUpvoted ? AppColors.primaryOrange.withOpacity(0.1) : Colors.transparent,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: hasUpvoted ? AppColors.primaryOrange : Colors.grey[300]!,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          hasUpvoted ? Icons.thumb_up : Icons.thumb_up_outlined,
-                          size: 16,
-                          color: hasUpvoted ? AppColors.primaryOrange : Colors.grey[600],
+                  // Image attachment if any
+                  if (idea.imageBase64 != null && idea.imageBase64!.isNotEmpty)
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => FullScreenImageViewer(imageUrl: idea.imageBase64!),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        height: 200,
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: borderColor, width: 2.0),
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${idea.upvotes.length} Upvotes',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: hasUpvoted ? AppColors.primaryOrange : Colors.grey[700],
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: ComplaintImageWidget(
+                            imageUrl: idea.imageBase64!,
+                            fit: BoxFit.cover,
                           ),
                         ),
-                      ],
+                      ),
+                    ),
+
+                  const SizedBox(height: 8),
+                  
+                  // Upvote Capsule Button
+                  GestureDetector(
+                    onTap: () async {
+                      if (currentUserId.isNotEmpty) {
+                        await provider.toggleUpvote(idea.id, currentUserId);
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: hasUpvoted
+                            ? (isDark ? Colors.white10 : AppColors.primaryOrange)
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: borderColor, width: 2.0),
+                        boxShadow: isDark
+                            ? []
+                            : [
+                                BoxShadow(
+                                  color: Colors.black,
+                                  offset: hasUpvoted ? const Offset(0, 0) : const Offset(2, 2),
+                                  blurRadius: 0,
+                                ),
+                              ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            hasUpvoted ? Icons.thumb_up : Icons.thumb_up_outlined,
+                            size: 16,
+                            color: hasUpvoted 
+                                ? (isDark ? AppColors.primaryOrange : Colors.white)
+                                : Colors.black,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${idea.upvotes.length} UPVOTES',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w900,
+                              color: hasUpvoted
+                                  ? (isDark ? Colors.white : Colors.white)
+                                  : Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
@@ -353,22 +478,25 @@ class _InnovationBoardScreenState extends State<InnovationBoardScreen> {
 
   Widget _buildEmptyState(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.lightbulb_outline, size: 64, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          Text(
-            'No ideas found',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.grey[600]),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Be the first to post a new suggestion for our campus!',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
-            textAlign: TextAlign.center,
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.lightbulb_outline, size: 64, color: Colors.grey[400]),
+            const SizedBox(height: 16),
+            Text(
+              'NO IDEAS FOUND',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Be the first to post a new suggestion for our campus!',
+              style: Theme.of(context).textTheme.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -381,15 +509,26 @@ class _InnovationBoardScreenState extends State<InnovationBoardScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Idea'),
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(color: Colors.black, width: 2.5),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Text('Delete Idea', style: TextStyle(fontWeight: FontWeight.w900)),
         content: const Text('Are you sure you want to delete this idea? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('CANCEL', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                side: const BorderSide(color: Colors.black, width: 2.0),
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
             onPressed: () async {
               final messenger = ScaffoldMessenger.of(context);
               Navigator.pop(context);
@@ -404,10 +543,11 @@ class _InnovationBoardScreenState extends State<InnovationBoardScreen> {
                 );
               }
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+            child: const Text('DELETE'),
           ),
         ],
       ),
     );
   }
 }
+

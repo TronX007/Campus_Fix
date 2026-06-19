@@ -236,10 +236,20 @@ class _AdminComplaintDetailState extends State<AdminComplaintDetail> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Resolution Proof Photo:', style: TextStyle(fontWeight: FontWeight.bold)),
+                          const Expanded(
+                            child: Text(
+                              'Resolution Proof Photo:',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
                           ElevatedButton.icon(
                             onPressed: _pickResolutionImage,
-                            icon: const Icon(Icons.photo_camera),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                            icon: const Icon(Icons.photo_camera, size: 16),
                             label: const Text('Add Proof'),
                           ),
                         ],
@@ -326,9 +336,15 @@ class _AdminComplaintDetailState extends State<AdminComplaintDetail> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('$label: ', style: const TextStyle(color: Colors.grey)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
         ],
       ),
     );

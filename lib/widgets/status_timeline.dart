@@ -20,6 +20,9 @@ class StatusTimeline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = isDark ? Colors.white : Colors.black;
+
     final statuses = [
       ComplaintStatus.submitted,
       ComplaintStatus.verified,
@@ -43,33 +46,44 @@ class StatusTimeline extends StatelessWidget {
             Column(
               children: [
                 Container(
-                  width: 24,
-                  height: 24,
+                  width: 28,
+                  height: 28,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isCompleted ? AppColors.primaryBlue : Colors.grey.shade300,
+                    color: isCompleted 
+                        ? (isDark ? AppColors.secondaryBlue : AppColors.pastelMint)
+                        : (isDark ? Colors.white10 : Colors.white),
+                    border: Border.all(color: borderColor, width: 2.5),
                   ),
                   child: isCompleted 
-                    ? const Icon(Icons.check, size: 16, color: Colors.white)
+                    ? Icon(
+                        status == ComplaintStatus.rejected ? Icons.close : Icons.check, 
+                        size: 16, 
+                        color: isDark ? Colors.white : Colors.black,
+                      )
                     : null,
                 ),
                 if (!isLast)
                   Container(
-                    width: 2,
+                    width: 3,
                     height: 40,
-                    color: isCompleted ? AppColors.primaryBlue : Colors.grey.shade300,
+                    color: isCompleted ? borderColor : Colors.grey.shade400,
                   ),
               ],
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(top: 2.0),
+                padding: const EdgeInsets.only(top: 4.0),
                 child: Text(
-                  status.displayName,
+                  status.displayName.toUpperCase(),
                   style: TextStyle(
-                    fontWeight: isCompleted ? FontWeight.bold : FontWeight.normal,
-                    color: isCompleted ? (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black) : Colors.grey,
+                    fontSize: 13,
+                    letterSpacing: 0.5,
+                    fontWeight: isCompleted ? FontWeight.w900 : FontWeight.bold,
+                    color: isCompleted 
+                        ? (isDark ? Colors.white : Colors.black) 
+                        : Colors.grey.shade500,
                   ),
                 ),
               ),
@@ -80,3 +94,4 @@ class StatusTimeline extends StatelessWidget {
     );
   }
 }
+

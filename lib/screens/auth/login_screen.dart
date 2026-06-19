@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/app_buttons.dart';
+import '../../theme/colors.dart';
 import '../student/student_dashboard.dart';
+
 import '../admin/admin_dashboard.dart';
 import 'registration_screen.dart';
 
@@ -59,18 +61,55 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
-    
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = isDark ? Colors.white : Colors.black;
+
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 40),
-              Text('Welcome Back', style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 32)),
-              const SizedBox(height: 8),
-              Text('Sign in to continue to AU Fix', style: Theme.of(context).textTheme.bodyMedium),
+              const SizedBox(height: 20),
+              // App Logo styling
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white10 : AppColors.pastelYellow,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: borderColor, width: 2.0),
+                ),
+                child: Text(
+                  'AU FIX',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.5,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'WELCOME BACK', 
+                style: TextStyle(
+                  fontSize: 28, 
+                  fontWeight: FontWeight.w900, 
+                  color: isDark ? Colors.white : Colors.black,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Sign in to continue to your campus dashboard', 
+                style: TextStyle(
+                  fontSize: 14, 
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white70 : Colors.black54,
+                ),
+              ),
               const SizedBox(height: 32),
               
               // Role Selector ChoiceChips
@@ -78,11 +117,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   Expanded(
                     child: ChoiceChip(
-                      label: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text('Student Login', style: TextStyle(fontWeight: FontWeight.bold)),
+                      label: const Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 6.0),
+                          child: Text('STUDENT', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5)),
+                        ),
                       ),
                       selected: _selectedRole == 'student',
+                      selectedColor: isDark ? AppColors.secondaryBlue : AppColors.pastelOrange,
+                      backgroundColor: isDark ? Colors.white10 : Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: BorderSide(color: borderColor, width: 2.0),
+                      ),
                       onSelected: (selected) {
                         if (selected) setState(() => _selectedRole = 'student');
                       },
@@ -91,11 +138,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: ChoiceChip(
-                      label: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text('Admin Login', style: TextStyle(fontWeight: FontWeight.bold)),
+                      label: const Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 6.0),
+                          child: Text('ADMIN', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5)),
+                        ),
                       ),
                       selected: _selectedRole == 'admin',
+                      selectedColor: isDark ? AppColors.secondaryBlue : AppColors.pastelMint,
+                      backgroundColor: isDark ? Colors.white10 : Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: BorderSide(color: borderColor, width: 2.0),
+                      ),
+
                       onSelected: (selected) {
                         if (selected) setState(() => _selectedRole = 'admin');
                       },
@@ -107,30 +163,30 @@ class _LoginScreenState extends State<LoginScreen> {
 
               TextField(
                 controller: _emailController,
+                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                 decoration: const InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: Icon(Icons.email),
-                  border: OutlineInputBorder(),
+                  labelText: 'Email Address',
+                  prefixIcon: Icon(Icons.email, color: Colors.black),
                 ),
                 keyboardType: TextInputType.emailAddress,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               TextField(
                 controller: _passwordController,
+                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                 decoration: const InputDecoration(
                   labelText: 'Password',
-                  prefixIcon: Icon(Icons.lock),
-                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.lock, color: Colors.black),
                 ),
                 obscureText: true,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
               PrimaryButton(
                 text: 'Login',
                 onPressed: _login,
                 isLoading: authProvider.isLoading,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               
               // Only show registration option if Student Login is selected
               if (_selectedRole == 'student')
@@ -139,7 +195,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => const RegistrationScreen()));
                     },
-                    child: const Text("Don't have an account? Register"),
+                    child: Text(
+                      "DON'T HAVE AN ACCOUNT? REGISTER",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 12,
+                        color: isDark ? AppColors.secondaryBlue : AppColors.primaryBlue,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
                   ),
                 ),
             ],
@@ -147,6 +211,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+
   }
 }
 

@@ -9,6 +9,8 @@ import '../../widgets/app_buttons.dart';
 import '../../utils/constants.dart';
 import '../../utils/enums.dart';
 import '../../utils/image_utils.dart';
+import '../../theme/colors.dart';
+
 
 class NewComplaintScreen extends StatefulWidget {
   const NewComplaintScreen({Key? key}) : super(key: key);
@@ -328,21 +330,49 @@ class _NewComplaintScreenState extends State<NewComplaintScreen> {
   @override
   Widget build(BuildContext context) {
     final isProviderLoading = Provider.of<ComplaintProvider>(context).isLoading;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = isDark ? Colors.white : Colors.black;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('New Complaint')),
+      backgroundColor: AppColors.backgroundLight,
+      appBar: AppBar(title: const Text('FILE A NEW COMPLAINT')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              'Report a Campus Issue 📢',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Enter issue details below. The system will automatically link similar reports to elevate priority.',
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.white70 : Colors.black54,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 28),
+            
+            // Title
             TextField(
               controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Title', border: OutlineInputBorder()),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              decoration: const InputDecoration(labelText: 'Issue Title (e.g. Broken Fan)'),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
+            
+            // Category
             DropdownButtonFormField<String>(
               value: _selectedCategory,
-              decoration: const InputDecoration(labelText: 'Category', border: OutlineInputBorder()),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              decoration: const InputDecoration(labelText: 'Category'),
               items: AppConstants.complaintCategories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
               onChanged: (val) {
                 if (val != null) {
@@ -353,11 +383,14 @@ class _NewComplaintScreenState extends State<NewComplaintScreen> {
                 }
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
+            
+            // Issue Type
             DropdownButtonFormField<String>(
               key: ValueKey(_selectedCategory),
               value: _selectedIssueType,
-              decoration: const InputDecoration(labelText: 'Issue Type', border: OutlineInputBorder()),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              decoration: const InputDecoration(labelText: 'Issue Type'),
               items: AppConstants.categoryIssueTypes[_selectedCategory]!
                   .map((it) => DropdownMenuItem(value: it, child: Text(it)))
                   .toList(),
@@ -369,28 +402,33 @@ class _NewComplaintScreenState extends State<NewComplaintScreen> {
                 }
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
+            
+            // Department
             DropdownButtonFormField<String>(
               value: _selectedDepartment,
-              decoration: const InputDecoration(labelText: 'Department', border: OutlineInputBorder()),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              decoration: const InputDecoration(labelText: 'Responsible Department'),
               items: AppConstants.departments.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
               onChanged: (val) { if (val != null) setState(() => _selectedDepartment = val); },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             
-            // Building selection
+            // Building
             DropdownButtonFormField<String>(
               value: _selectedBuilding,
-              decoration: const InputDecoration(labelText: 'Building / Block', border: OutlineInputBorder()),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              decoration: const InputDecoration(labelText: 'Building / Block'),
               items: _buildings.map((b) => DropdownMenuItem(value: b, child: Text(b))).toList(),
               onChanged: (val) { if (val != null) setState(() => _selectedBuilding = val); },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
 
-            // Floor selection
+            // Floor
             DropdownButtonFormField<int>(
               value: _selectedFloor,
-              decoration: const InputDecoration(labelText: 'Floor Number', border: OutlineInputBorder()),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              decoration: const InputDecoration(labelText: 'Floor Number'),
               items: _floors.map((f) => DropdownMenuItem(value: f, child: Text('Floor $f'))).toList(),
               onChanged: (val) {
                 if (val != null) {
@@ -401,42 +439,47 @@ class _NewComplaintScreenState extends State<NewComplaintScreen> {
                 }
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
 
-            // Room selection
+            // Room
             DropdownButtonFormField<String>(
               value: _selectedRoom,
-              decoration: const InputDecoration(labelText: 'Room / Area', border: OutlineInputBorder()),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              decoration: const InputDecoration(labelText: 'Room / Area'),
               items: _getRoomsForFloor(_selectedFloor).map((r) => DropdownMenuItem(value: r, child: Text('Room $r'))).toList(),
               onChanged: (val) { if (val != null) setState(() => _selectedRoom = val); },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
 
+            // Specific details
             TextField(
               controller: _specificLocationController,
-              decoration: const InputDecoration(labelText: 'Specific Location Details (e.g., Near water cooler)', border: OutlineInputBorder()),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              decoration: const InputDecoration(labelText: 'Specific Location Details (e.g., Near water cooler)'),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
+            
+            // Description
             TextField(
               controller: _descriptionController,
-              decoration: const InputDecoration(labelText: 'Description of the Issue', border: OutlineInputBorder()),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              decoration: const InputDecoration(labelText: 'Description of the Issue'),
               maxLines: 4,
             ),
             const SizedBox(height: 24),
             
-            // Image Upload Section
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Attach Photo:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                ElevatedButton.icon(
-                  onPressed: _showImageSourceActionSheet,
-                  icon: const Icon(Icons.add_a_photo),
-                  label: Text(_imageFile == null ? 'Add Image' : 'Replace Image'),
-                ),
-              ],
+            // Image Upload Section Header
+            Text(
+              'ATTACH EVIDENCE PHOTO',
+              style: TextStyle(
+                fontSize: 13, 
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.0,
+                color: isDark ? Colors.white : Colors.black,
+              ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
+            
             if (_imageFile != null) ...[
               Stack(
                 alignment: Alignment.topRight,
@@ -445,18 +488,69 @@ class _NewComplaintScreenState extends State<NewComplaintScreen> {
                     height: 200,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: borderColor, width: 2.5),
+                      borderRadius: BorderRadius.circular(16),
                       image: DecorationImage(image: FileImage(_imageFile!), fit: BoxFit.cover),
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.cancel, color: Colors.red, size: 30),
-                    onPressed: () => setState(() => _imageFile = null),
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: borderColor, width: 2.0),
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.cancel, color: Colors.white, size: 20),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                        onPressed: () => setState(() => _imageFile = null),
+                      ),
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 24),
+            ] else ...[
+              GestureDetector(
+                onTap: _showImageSourceActionSheet,
+                child: Container(
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: borderColor, width: 2.5),
+                    boxShadow: isDark
+                        ? []
+                        : const [
+                            BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(3, 3),
+                              blurRadius: 0,
+                            ),
+                          ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.add_a_photo, color: isDark ? Colors.white : Colors.black, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        'UPLOAD PHOTO EVIDENCE',
+                        style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 12,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
             ],
 
             PrimaryButton(
@@ -470,3 +564,4 @@ class _NewComplaintScreenState extends State<NewComplaintScreen> {
     );
   }
 }
+
