@@ -253,6 +253,17 @@ class FirestoreService {
         .toList();
   }
 
+  // Fetch ideas stream (live feed)
+  Stream<List<IdeaModel>> getIdeasStream() {
+    return _db
+        .collection(AppConstants.ideasCollection)
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => IdeaModel.fromMap(doc.data(), doc.id))
+            .toList());
+  }
+
   // Add a new idea
   Future<void> addIdea(IdeaModel idea) async {
     await _db

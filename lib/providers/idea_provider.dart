@@ -7,6 +7,7 @@ import '../utils/image_utils.dart';
 
 class IdeaProvider with ChangeNotifier {
   final FirestoreService _firestoreService = FirestoreService();
+  StreamSubscription<List<IdeaModel>>? _ideasSubscription;
 
   List<IdeaModel> _ideas = [];
   bool _isLoading = false;
@@ -30,6 +31,25 @@ class IdeaProvider with ChangeNotifier {
     }
   }
 
+  void startListeningToIdeas() {
+    _ideasSubscription?.cancel();
+    _setLoading(true);
+    _errorMessage = null;
+    _ideasSubscription = _firestoreService.getIdeasStream().listen(
+      (ideasSnapshot) {
+        _ideas = ideasSnapshot;
+        _errorMessage = null;
+        _setLoading(false);
+        notifyListeners();
+      },
+      onError: (error) {
+        _errorMessage = _parseError(error);
+        _setLoading(false);
+        notifyListeners();
+      },
+    );
+  }
+
   Future<void> addIdea(IdeaModel idea, {File? imageFile}) async {
     _setLoading(true);
     _errorMessage = null;
@@ -42,9 +62,6 @@ class IdeaProvider with ChangeNotifier {
 
       final updatedIdea = idea.copyWith(imageBase64: imageBase64);
       await _firestoreService.addIdea(updatedIdea);
-
-      // Reload ideas list
-      await loadIdeas();
     } catch (e) {
       _errorMessage = _parseError(e);
       debugPrint("addIdea error: $e");
@@ -120,5 +137,11 @@ class IdeaProvider with ChangeNotifier {
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _ideasSubscription?.cancel();
+    super.dispose();
   }
 }

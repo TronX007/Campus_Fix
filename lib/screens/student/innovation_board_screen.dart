@@ -24,7 +24,7 @@ class _InnovationBoardScreenState extends State<InnovationBoardScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<IdeaProvider>(context, listen: false).loadIdeas();
+      Provider.of<IdeaProvider>(context, listen: false).startListeningToIdeas();
     });
   }
 
@@ -73,7 +73,7 @@ class _InnovationBoardScreenState extends State<InnovationBoardScreen> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
-                await ideaProvider.loadIdeas();
+                ideaProvider.startListeningToIdeas();
               },
               child: ideaProvider.isLoading && ideaProvider.ideas.isEmpty
                   ? const Center(child: CircularProgressIndicator())
