@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "545450534181",
+    "project_id": "au-fix",
+    "storage_bucket": "au-fix.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:545450534181:android:2976d6787cc61a4111e6cc",
+        "android_client_info": {
+          "package_name": "com.aufix.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAci5u0q_rKcG8kVrDPXPAiqiATEWfqQcE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:545450534181:android:09583dc8b7d1f51611e6cc",
+        "android_client_info": {
+          "package_name": "com.example.au_fix"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAci5u0q_rKcG8kVrDPXPAiqiATEWfqQcE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

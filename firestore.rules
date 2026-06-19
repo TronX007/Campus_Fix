@@ -1,0 +1,60 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check if the current user is an administrator
+    function isAdmin() {
+      return request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Rules for users collection
+    match /users/{userId} {
+      allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+    }
+
+    // Rules for complaints collection
+    match /complaints/{complaintId} {
+      // Allow any authenticated user to read complaints so students can find similar complaints
+      allow read: if request.auth != null;
+      
+      // Allow students to create complaints where they are the reporter
+      allow create: if request.auth != null && request.resource.data.studentId == request.auth.uid;
+      
+      // Allow the original student to update/delete their complaint, or any student to increment the affected student count (join)
+      allow update: if request.auth != null && (
+        resource.data.studentId == request.auth.uid || 
+        isAdmin() || 
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['affectedStudentCount', 'updatedAt'])
+      );
+      
+      allow delete: if isAdmin();
+    }
+
+    // Rules for complaint_clusters collection
+    match /complaint_clusters/{clusterId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // Rules for notifications collection
+    match /notifications/{notificationId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Rules for ideas collection (Innovation Board)
+    match /ideas/{ideaId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.postedBy.uid == request.auth.uid;
+      allow update: if request.auth != null && (
+        resource.data.postedBy.uid == request.auth.uid || 
+        isAdmin() || 
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['upvotes'])
+      );
+      allow delete: if request.auth != null && (resource.data.postedBy.uid == request.auth.uid || isAdmin());
+    }
+  }
+}
