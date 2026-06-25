@@ -13,6 +13,7 @@ import '../auth/login_screen.dart';
 import 'admin_complaint_detail.dart';
 import 'admin_clusters_screen.dart';
 import 'heatmap_screen.dart';
+import '../../models/idea_model.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({Key? key}) : super(key: key);
@@ -464,16 +465,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         if (idea.imageBase64 != null && idea.imageBase64!.isNotEmpty)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 16.0),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: borderColor, width: 2.0),
-                                ),
+                            child: Container(
+                              height: 180,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: borderColor, width: 2.0),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
                                 child: ComplaintImageWidget(
-                                  imageBase64: idea.imageBase64!,
-                                  height: 180,
-                                  width: double.infinity,
+                                  imageUrl: idea.imageBase64!,
+                                  fit: BoxFit.cover,
                                 ),
                               ),
                             ),
@@ -543,3 +546,4 @@ class _AdminDashboardState extends State<AdminDashboard> {
       ),
     );
   }
+}
